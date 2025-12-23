@@ -23,19 +23,20 @@ import net.runelite.client.plugins.PluginDescriptor;
 public class ClueStepTimerPlugin extends Plugin
 {
 	private static final Set<Integer> CLUE_SCROLL_IDS = Set.of(
-			ItemID.CLUE_SCROLL_EASY,
-			ItemID.CLUE_SCROLL_MEDIUM,
-			ItemID.CLUE_SCROLL_HARD,
-			ItemID.CLUE_SCROLL_ELITE,
-			ItemID.CLUE_SCROLL_MASTER
-	);
+    	ItemID.CLUE_SCROLL_EASY,
+    	ItemID.CLUE_SCROLL_MEDIUM,
+    	ItemID.CLUE_SCROLL_HARD,
+    	ItemID.CLUE_SCROLL_ELITE,
+    	ItemID.CLUE_SCROLL_MASTER
+);
 
-	private static final Set<Integer> CASKET_IDS = Set.of(
-			ItemID.CASKET_EASY,
-			ItemID.CASKET_MEDIUM,
-			ItemID.CASKET_HARD,
-			ItemID.CASKET_ELITE
-	);
+private static final Set<Integer> CASKET_IDS = Set.of(
+    	ItemID.CASKET_EASY,
+    	ItemID.CASKET_MEDIUM,
+    	ItemID.CASKET_HARD,
+    	ItemID.CASKET_ELITE,
+    	ItemID.CASKET_MASTER
+);
 
 	@Inject
 	private Client client;
