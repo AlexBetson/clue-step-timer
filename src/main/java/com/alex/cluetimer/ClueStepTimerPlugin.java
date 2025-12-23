@@ -16,27 +16,29 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 
 @PluginDescriptor(
-		name = "Clue Step Timer",
-		description = "Times each clue step from reading the clue to receiving the next clue or casket",
-		tags = {"clue", "timer", "speedrun"}
+	name = "Clue Step Timer",
+	description = "Times each clue step from reading the clue to receiving the next clue or casket",
+	tags = {"clue", "timer", "speedrun"}
 )
 public class ClueStepTimerPlugin extends Plugin
 {
 	private static final Set<Integer> CLUE_SCROLL_IDS = Set.of(
-    	ItemID.CLUE_SCROLL_EASY,
-    	ItemID.CLUE_SCROLL_MEDIUM,
-    	ItemID.CLUE_SCROLL_HARD,
-    	ItemID.CLUE_SCROLL_ELITE,
-    	ItemID.CLUE_SCROLL_MASTER
-);
+		ItemID.CLUE_SCROLL_EASY,
+		ItemID.CLUE_SCROLL_MEDIUM,
+		ItemID.CLUE_SCROLL_HARD,
+		ItemID.CLUE_SCROLL_ELITE,
+		ItemID.CLUE_SCROLL_MASTER
+	);
 
-private static final Set<Integer> CASKET_IDS = Set.of(
-    	ItemID.CASKET_EASY,
-    	ItemID.CASKET_MEDIUM,
-    	ItemID.CASKET_HARD,
-    	ItemID.CASKET_ELITE,
-    	ItemID.CASKET_MASTER
-);
+	private static final Set<Integer> CASKET_IDS = Set.of(
+		ItemID.CASKET_EASY,
+		ItemID.CASKET_MEDIUM,
+		ItemID.CASKET_HARD,
+		ItemID.CASKET_ELITE
+		// NOTE: no ItemID.CASKET_MASTER in Plugin Hub's API
+	);
+
+	private static final String MASTER_CASKET_NAME = "Reward casket (master)";
 
 	@Inject
 	private Client client;
@@ -66,7 +68,7 @@ private static final Set<Integer> CASKET_IDS = Set.of(
 		}
 
 		startClueCount = count(inv, CLUE_SCROLL_IDS);
-		startCasketCount = count(inv, CASKET_IDS);
+		startCasketCount = countCaskets(inv);
 		stepStart = Instant.now();
 
 		send("Clue step timer started");
@@ -87,7 +89,7 @@ private static final Set<Integer> CASKET_IDS = Set.of(
 		}
 
 		int clueNow = count(inv, CLUE_SCROLL_IDS);
-		int casketNow = count(inv, CASKET_IDS);
+		int casketNow = countCaskets(inv);
 
 		if (clueNow != startClueCount || casketNow > startCasketCount)
 		{
@@ -106,6 +108,46 @@ private static final Set<Integer> CASKET_IDS = Set.of(
 			total += inv.count(id);
 		}
 		return total;
+	}
+
+	private int countCaskets(ItemContainer inv)
+	{
+		// Count known caskets first
+		int total = count(inv, CASKET_IDS);
+
+		// Then count any "Reward casket (master)" by name
+		for (var item : inv.getItems())
+		{
+			if (item == null)
+			{
+				continue;
+			}
+
+			int id = item.getId();
+			if (id <= 0 || CASKET_IDS.contains(id))
+			{
+				continue;
+			}
+
+			if (isMasterCasket(id))
+			{
+				total += item.getQuantity();
+			}
+		}
+
+		return total;
+	}
+
+	private boolean isMasterCasket(int itemId)
+	{
+		var def = client.getItemDefinition(itemId);
+		if (def == null)
+		{
+			return false;
+		}
+
+		String name = def.getName();
+		return name != null && name.equalsIgnoreCase(MASTER_CASKET_NAME);
 	}
 
 	private void send(String msg)
